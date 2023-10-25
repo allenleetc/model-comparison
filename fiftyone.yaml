@@ -1,0 +1,9 @@
+fiftyone:
+  version: "*"
+name: "@allenleetc/model_comparison"
+version: "1.0.0"
+description: Compare performance of two object detection models
+operators:
+  - compute_changes
+  - view_changes
+  - delete_comparison

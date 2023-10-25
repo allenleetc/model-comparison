@@ -15,7 +15,7 @@ pip install fiftyone
 Then install the plugin and its dependencies:
 
 ```shell
-fiftyone plugins download https://github.com/allenleetc/model-comparison-plugin
+fiftyone plugins download https://github.com/allenleetc/model-comparison
 ```
 
 ### Usage
@@ -68,9 +68,9 @@ session = fo.launch_app(dataset)
 
 5.  Press `` ` `` or click the `Browse operations` icon above the grid.
 
-6.  Run the `Compute Model Differences` operator.
+6.  Run the `Compute Model Differences` operator. Select your ground-truth, model1 predictions, model2 predictions, and model1/model2 (single-model) evaluation keys.
 
-This will populate new sample- and label-level fields containing statistics and metadata comparing the two models.
+This will populate new sample- and label-level fields containing statistics and metadata comparing how performance of the two models against ground truth has changed.
 
 Labels are classified into six groups based on how they compare to ground truth for model1 compared to model2:
 

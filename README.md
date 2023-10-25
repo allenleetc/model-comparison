@@ -91,7 +91,7 @@ Tip: in the sample modal, selecting a label and using the 'z' (Crop to content) 
 
 FiftyOne's builtin [single-model evaluation](https://docs.voxel51.com/user_guide/evaluation.html#detections) matches ground-truth and predicted detections, storing match status (TP, FN, FP) and associated IOUs on each label.
 
-In the `Compute Model Differences` operator, these matches are analyzed and compared across the two models. Similar to the single-model evaluation, comparison statistics are populated at the sample and label level.
+In the `Compute Model Differences` operator, these matches are analyzed and compared across the two models. As in single-model evaluation, comparison statistics are populated at the sample and label level.
 
 The `Visualize Model Differences` operator simpifies viewing the various types of model improvements/regressions by appropriately filtering labels.
 

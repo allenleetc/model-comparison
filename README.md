@@ -3,7 +3,7 @@
 A [FiftyOne plugin](https://docs.voxel51.com/plugins/index.html) for comparing two object
 detection models.
 
-## Installation
+### Installation
 
 If you haven't already,
 [install FiftyOne](https://docs.voxel51.com/getting_started/install.html):
@@ -18,9 +18,9 @@ Then install the plugin and its dependencies:
 fiftyone plugins download https://github.com/allenleetc/model-comparison-plugin
 ```
 
-## Usage
+### Usage
 
-1. Load your dataset. Here we create an example dataset from the [FiftyOne Dataset Zoo](https://docs.voxel51.com/user_guide/dataset_zoo/index.html#fiftyone-dataset-zoo):
+1. Load your dataset. Here we use the [COCO-2017](https://docs.voxel51.com/user_guide/dataset_zoo/datasets.html#coco-2017) from the [FiftyOne Dataset Zoo](https://docs.voxel51.com/user_guide/dataset_zoo/index.html#fiftyone-dataset-zoo):
 
 ```py
 import fiftyone as fo
@@ -32,6 +32,7 @@ dataset = foz.load_zoo_dataset(
     max_samples=5000,
 )
 
+# Simplify dataset to three classes
 classes = ['car','person','traffic light']
 three_classes = (F('label').is_in(classes))
 not_crowd = (F('iscrowd')==0)
@@ -42,7 +43,7 @@ dataset.name = 'coco-simple'
 dataset.persistent = True
 ```
 
-2. Generate model predictions for two object detection models
+2. Generate model predictions using two object detection models (your dataset may already have predictions!)
 
 ```py
 model_frcnn = foz.load_zoo_model('faster-rcnn-resnet50-fpn-coco-torch')
@@ -69,32 +70,36 @@ session = fo.launch_app(dataset)
 
 6.  Run the `Compute Model Differences` operator.
 
-This will populate new sample- and label-level fields containing comparison statistics and metadata.
+This will populate new sample- and label-level fields containing statistics and metadata comparing the two models.
 
-Labels are classified into groups based on whether and how they were matched in model1 compared to model2:
+Labels are classified into six groups based on how they compare to ground truth for model1 compared to model2:
 
-- hithit: model1 successful detection, model2 successful detection
-- hitmiss: model1 successful detection, model2 FN
-- misshit: model1 FN, model2 successful detection
-- missmiss: both models FN
-- hithit+: model1 and model2 successful, but localization improved in model2
-- hithit-: model1 and model2 successful, but localization regressed in model2
+- **hithit**: model1 successful detection, model2 successful detection
+- **hitmiss**: model1 successful detection, model2 missed detection (FN)
+- **misshit**: model1 missed detection (FN), model2 successful detection
+- **missmiss**: both models missed detections (FN)
+- **hithit+**: model1 and model2 successful, but localization improved in model2
+- **hithit-**: model1 and model2 successful, but localization regressed in model2
 
 7. Run the `View Model Differences` operator.
 
-This operator enables viewing the groups of labels listed above with the ability to filter by class. Model improvements or regressions for across all classes, or for particular classes, can be visualized.
+This operator enables viewing the groups of labels listed above with the ability to filter by class. Model improvements or regressions across all classes, or for particular classes, can be visualized.
 
 Tip: in the sample modal, selecting a label and using the 'z' (Crop to content) hotkey will zoom quickly to the relevant ground-truth and prediction labels.
 
-## Implementation
+### Implementation
 
 FiftyOne's builtin [single-model evaluation](https://docs.voxel51.com/user_guide/evaluation.html#detections) matches ground-truth and predicted detections, storing match status (TP, FN, FP) and associated IOUs on each label.
 
 In the `Compute Model Differences` operator, these matches are analyzed and compared across the two models. Similar to the single-model evaluation, comparison statistics are populated at the sample and label level.
 
-The `Visualize Model Differences` operator simpifies viewing of various types of model improvements/regressions by appropriately filtering labels.
+The `Visualize Model Differences` operator simpifies viewing the various types of model improvements/regressions by appropriately filtering labels.
 
-## Todo
+The `Delete Model Comparison` operator deletes a model comparison run along with its sample- and label-level fields. 
+
+Metadata for comparison runs are stored in the `dataset.info` dictionary.
+
+### Todo
 
 - In `Visualize Model Differences`, if there are no samples/labels in a selected view, the entire dataset is shown.
 - In `Compute Model Differences`, add the ability to specify the IOU threshold defining hithit vs hithit+ and hithit-

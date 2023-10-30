@@ -3,6 +3,9 @@
 A [FiftyOne plugin](https://docs.voxel51.com/plugins/index.html) for comparing two object
 detection models.
 
+https://github.com/allenleetc/model-comparison/assets/5833306/ba51e51b-a592-4411-8101-208a30c3713f
+
+
 ### Installation
 
 If you haven't already,
@@ -19,6 +22,9 @@ fiftyone plugins download https://github.com/allenleetc/model-comparison
 ```
 
 ### Usage
+
+
+
 
 1. Load your dataset. Here we use the [COCO-2017](https://docs.voxel51.com/user_guide/dataset_zoo/datasets.html#coco-2017) from the [FiftyOne Dataset Zoo](https://docs.voxel51.com/user_guide/dataset_zoo/index.html#fiftyone-dataset-zoo):
 

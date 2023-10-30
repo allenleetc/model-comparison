@@ -5,6 +5,7 @@ detection models.
 
 https://github.com/allenleetc/model-comparison/assets/5833306/ba51e51b-a592-4411-8101-208a30c3713f
 
+(Dataset: [Sama Drives California](https://huggingface.co/datasets/SamaAI/sama-drives-california))
 
 ### Installation
 

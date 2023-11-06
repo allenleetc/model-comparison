@@ -108,7 +108,7 @@ Metadata for comparison runs are stored in the `dataset.info` dictionary.
 
 ### Todo
 
-- Currently the analysis considers only what happens to predictions that are matched with a GT detection. Counts of false Positives from each prediction can be added as well
+- Add tallies/counts of false positives from each prediction to include predicted detections not matched with a GT detection
 - In `Visualize Model Differences`, if there are no samples/labels in a selected view, the entire dataset is shown.
 - In `Compute Model Differences`, add the ability to specify the IOU threshold defining hithit vs hithit+ and hithit-
 - Prettier icons for the operator pallete

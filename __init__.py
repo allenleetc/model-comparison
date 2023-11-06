@@ -69,64 +69,65 @@ def analyze_match_delta(
     for idx, sample in enumerate(
         samples.iter_samples(progress=True, autosave=True)
     ):
-        dets = sample[gtfld].detections
         det_map = {}
         cnt_map = {"missmiss": 0, "misshit": 0, "hitmiss": 0, "hithit": 0}
-        for didx, d in enumerate(dets):
-            _id = d["id"]
-            match0 = d[fld_match0]
-            match1 = d[fld_match1]
-            if match0 == "fn" and match1 == "fn":
-                case = "missmiss"
-                res = (case,)
-                d[fld_cmp] = case
-            elif match0 == "fn" and match1 == "tp":
-                case = "misshit"
-                id1 = d[fld_id1]
-                res = (case, id1)
-                d[fld_cmp] = case
-                d[fld_cmp_id1] = id1
+        if sample[gtfld] is not None:
+            dets = sample[gtfld].detections
+            for didx, d in enumerate(dets):
+                _id = d["id"]
+                match0 = d[fld_match0]
+                match1 = d[fld_match1]
+                if match0 == "fn" and match1 == "fn":
+                    case = "missmiss"
+                    res = (case,)
+                    d[fld_cmp] = case
+                elif match0 == "fn" and match1 == "tp":
+                    case = "misshit"
+                    id1 = d[fld_id1]
+                    res = (case, id1)
+                    d[fld_cmp] = case
+                    d[fld_cmp_id1] = id1
 
-                save_label(label_ids_to_vals_1, id1, case)
-            elif match0 == "tp" and match1 == "fn":
-                case = "hitmiss"
-                id0 = d[fld_id0]
-                res = (case, id0)
-                d[fld_cmp] = case
-                d[fld_cmp_id0] = id0
-                save_label(label_ids_to_vals_0, id0, case)
+                    save_label(label_ids_to_vals_1, id1, case)
+                elif match0 == "tp" and match1 == "fn":
+                    case = "hitmiss"
+                    id0 = d[fld_id0]
+                    res = (case, id0)
+                    d[fld_cmp] = case
+                    d[fld_cmp_id0] = id0
+                    save_label(label_ids_to_vals_0, id0, case)
 
-            else:
-                assert match0 == "tp" and match1 == "tp"
-                id0 = d[fld_id0]
-                id1 = d[fld_id1]
-                iou0 = d[fld_iou0]
-                iou1 = d[fld_iou1]
-
-                if iou1 - iou0 > iou_thresh:
-                    case = "hithit+"
-                elif iou0 - iou1 > iou_thresh:
-                    case = "hithit-"
                 else:
-                    case = "hithit"
+                    assert match0 == "tp" and match1 == "tp"
+                    id0 = d[fld_id0]
+                    id1 = d[fld_id1]
+                    iou0 = d[fld_iou0]
+                    iou1 = d[fld_iou1]
 
-                res = (case, id0, id1)
-                d[fld_cmp] = case
-                d[fld_cmp_id0] = id0
-                d[fld_cmp_id1] = id1
+                    if iou1 - iou0 > iou_thresh:
+                        case = "hithit+"
+                    elif iou0 - iou1 > iou_thresh:
+                        case = "hithit-"
+                    else:
+                        case = "hithit"
 
-                save_label(label_ids_to_vals_0, id0, case)
-                save_label(label_ids_to_vals_1, id1, case)
+                    res = (case, id0, id1)
+                    d[fld_cmp] = case
+                    d[fld_cmp_id0] = id0
+                    d[fld_cmp_id1] = id1
 
-            assert _id not in det_map
-            det_map[_id] = res
-            case_base = case.rstrip("+-")
-            cnt_map[case_base] += 1
+                    save_label(label_ids_to_vals_0, id0, case)
+                    save_label(label_ids_to_vals_1, id1, case)
 
-            sample[gtfld].detections[didx] = d
+                assert _id not in det_map
+                det_map[_id] = res
+                case_base = case.rstrip("+-")
+                cnt_map[case_base] += 1
 
-        for d in sample[gtfld].detections:
-            assert d[fld_cmp] is not None
+                sample[gtfld].detections[didx] = d
+
+            for d in sample[gtfld].detections:
+                assert d[fld_cmp] is not None
 
         for k, v in cnt_map.items():
             k = cmp_key + "_" + k
@@ -139,7 +140,7 @@ def analyze_match_delta(
     samples.set_label_values(label_cmpfld_0, label_ids_to_vals_0)
     samples.set_label_values(label_cmpfld_1, label_ids_to_vals_1)
 
-    # false positives
+    # Todo: false positives
     # these dont get matched. so at sample level can count
 
     yield

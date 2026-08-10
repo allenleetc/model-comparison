@@ -75,8 +75,13 @@ def analyze_match_delta(
             dets = sample[gtfld].detections
             for didx, d in enumerate(dets):
                 _id = d["id"]
-                match0 = d[fld_match0]
-                match1 = d[fld_match1]
+                match0 = getattr(d, fld_match0, None)
+                match1 = getattr(d, fld_match1, None)
+                if match0 is None and match1 is None:
+                    # detection not covered by either evaluation (eg it was
+                    # added after the evaluations were run)
+                    continue
+
                 if match0 == "fn" and match1 == "fn":
                     case = "missmiss"
                     res = (case,)
@@ -125,9 +130,6 @@ def analyze_match_delta(
                 cnt_map[case_base] += 1
 
                 sample[gtfld].detections[didx] = d
-
-            for d in sample[gtfld].detections:
-                assert d[fld_cmp] is not None
 
         for k, v in cnt_map.items():
             k = cmp_key + "_" + k
@@ -181,7 +183,7 @@ class ComputeChanges(foo.Operator):
         pd0_field = ctx.params.get("p0_field", "predictions0")
         pd1_field = ctx.params.get("p1_field", "predictions1")
         eval_key0 = ctx.params.get("ekey0", "evaluation0")
-        eval_key1 = ctx.params.get("ekey1", "evlauation1")
+        eval_key1 = ctx.params.get("ekey1", "evaluation1")
 
         info_dict = samples.info
         if CMP_KEY_INFO_DICT_KEY not in info_dict:
@@ -195,6 +197,19 @@ class ComputeChanges(foo.Operator):
             "eval_key1": eval_key1,
         }
         samples.save()
+
+        # restrict to the samples that both evaluations actually covered,
+        # which may be a subset of the full dataset (eg a test split)
+        view0 = samples.load_evaluation_view(eval_key0)
+        view1 = samples.load_evaluation_view(eval_key1)
+        eval_ids = set(view0.values("id")) & set(view1.values("id"))
+        num_skipped = len(samples) - len(eval_ids)
+        if num_skipped > 0:
+            ctx.log(
+                f"Skipping {num_skipped} samples not covered by both "
+                f"evaluations '{eval_key0}' and '{eval_key1}'"
+            )
+            samples = samples.select(eval_ids)
 
         for update in analyze_match_delta(
             ctx,

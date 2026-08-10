@@ -224,7 +224,7 @@ class ComputeChanges(foo.Operator):
         ):
             yield update
 
-        yield samples.add_dynamic_sample_fields()
+        yield ctx.dataset.add_dynamic_sample_fields()
         yield ctx.trigger("reload_dataset")
 
 
